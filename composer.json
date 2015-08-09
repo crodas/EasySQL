@@ -1,0 +1,26 @@
+{
+    "name": "crodas/easy-sql",
+    "description": "Easiest SQL abstraction ever",
+    "type": "library",
+    "require": {
+        "crodas/notoj": "^1.0.8",
+        "ext-PDO": "^1.0",
+        "crodas/watch-files": "^0.1.6",
+        "symfony/finder": "^2.7",
+        "greenlion/php-sql-parser": "^4.0",
+        "crodas/build": "^0.1"
+    },
+    "autoload": { 
+        "psr-0": {
+            "EasySQL": "src"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cesar Rodas",
+            "email": "cesar@rodas.me"
+        }
+    ],
+    "minimum-stability": "stable"
+}
