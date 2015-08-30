@@ -58,6 +58,21 @@ class EasySQL
         $this->engine->begin($this->pdo);
     }
 
+    public function rollback()
+    {
+        $this->engine->rollback($this->pdo);
+    }
+
+    public function commit()
+    {
+        $this->engine->commit($this->pdo);
+    }
+
+    public function getRepositories()
+    {
+        return array_keys($this->repos);
+    }
+
     public function getRepository($name)
     {
         $name = strtolower($name);

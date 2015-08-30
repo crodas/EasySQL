@@ -34,8 +34,7 @@ class Method
 
     public function isInsert()
     {
-        reset($this->query);
-        return key($this->query) === 'INSERT';
+        return $this->query instanceof \SQLParser\Insert;
     }
 
     public function singleResult()
@@ -47,8 +46,8 @@ class Method
         $limit = $this->query->getLimit();
 
         if ($limit) {
-            var_dump($limit);exit;
-            return $this->query['LIMIT']['rowcount'] == 1;
+            $parts = $limit->getTerms();
+            return count($parts) == 1 && $parts[0]->getMember(0) == 1;
         }
 
         return false;
