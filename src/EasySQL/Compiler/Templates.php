@@ -132,10 +132,13 @@ namespace {
                     $this->context['method'] = $method;
                     echo "    public function " . ($name) . "(" . ($method->getFunctionSignature()) . ")\n    {\n        \$stmt = \$this->dbh->prepare(";
                     var_export($method->getSQL());
-                    echo ");\n        \$stmt->execute(";
+                    echo ");\n        \$result = \$stmt->execute(";
                     echo $method->getCompact() . ");\n";
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
+                    }
+                    else if ($method->changeSchema()) {
+                        echo "            return true;\n";
                     }
                     else if ($method->singleResult()) {
                         if ($method->mapAsObject()) {
@@ -152,6 +155,7 @@ namespace {
                         var_export($method->mapAsObject());
                         echo ");\n";
                     }
+
 
                     echo "    }\n\n";
                 }

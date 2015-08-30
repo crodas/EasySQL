@@ -28,21 +28,34 @@ use crodas\Build;
 use RuntimeException;
 use PDO;
 
+require __DIR__ . "/autoload.php";
+
 class EasySQL
 {
     protected $dir;
+    protected $pdo;
     protected $repos;
+    protected $engine;
 
     public function __construct($dir, PDO $pdo)
     {
         if (!is_dir($dir)) {
             throw new RuntimeException("$dir is not a valid directory");
         }
-        $this->dir = $dir;
-        $build = new Build(__DIR__ . '/Compiler/Builder.php');
-        $file = $build->easysql([$this->dir]);
+        $engine = 'EasySQL\Engine\\' . $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $engine = new $engine;
+        $build  = new Build(__DIR__ . '/Compiler/Builder.php');
+        $file   = $build->easysql([$dir], [$engine]);
         $loader = require $file;
-        $this->repos = $loader($pdo);
+        $this->pdo    = $pdo;
+        $this->repos  = $loader($pdo);
+        $this->dir    = $dir;
+        $this->engine = $engine;
+    }
+
+    public function begin()
+    {
+        $this->engine->begin($this->pdo);
     }
 
     public function getRepository($name)

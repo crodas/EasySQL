@@ -4,18 +4,23 @@ namespace EasySQL\Compiler\Repository;
 
 use Notoj\Annotation\Annotations;
 use PHPSQLParser\PHPSQLCreator;
+use EasySQL\Engine;
+use SQLParser\Stmt;
+use SQLParser\Writer;
 
 class Method
 {
     protected $query;
     protected $ann;
     protected $args;
+    protected $engine;
 
-    public function __construct(Annotations $ann, Array $query)
+    public function __construct(Annotations $ann, Stmt $query, Engine\Base $engine)
     {
-        $this->query = $query;
-        $this->ann   = $ann;
-        $this->parseArgs();
+        $this->engine = $engine;
+        $this->query  = $query;
+        $this->ann    = $ann;
+        $this->args   = $query->getVariables();
     }
 
     protected function parseVariables($str, &$var)
@@ -23,53 +28,8 @@ class Method
         return preg_match_all("/[\\$:]([a-z_][0-9_a-z]*)/i", $str, $var);
     }
 
-    protected function getVariables(Array & $stmt, Array &$vars)
-    {
-        switch ($stmt['expr_type']) {
-        case 'limit':
-            foreach (['offset', 'rowcount'] as $type) {
-                if ($this->parseVariables($stmt[$type], $var)) {
-                    $vars = array_merge($vars, $var[1]);
-                    $stmt[$type] = ':' . $var[1][0];
-                }
-            }
-            break;
-        case 'table':
-        case 'colref':
-            if (!$this->parseVariables($stmt['base_expr'], $var)) {
-                return;
-            }
-            $vars = array_merge($vars, $var[1]);
-            $stmt['base_expr'] = str_replace($var[0], array_map(function($m) {
-                return ":$m";
-            }, $var[1]), $stmt['base_expr']);
-            break;
-            return;
-        case 'record':
-            foreach ($stmt['data'] as &$sub) {
-                $this->getVariables($sub, $vars);
-            }
-        }
-    }
-
     protected function parseArgs()
     {
-        $vars = [];
-        foreach ($this->query as &$stmts) {
-            foreach ($stmts as &$stmt) {
-                if (is_array($stmt)) {
-                    $this->getVariables($stmt, $vars);
-                }
-            }
-        }
-
-        if (!empty($this->query['LIMIT'])) {
-            $limit = $this->query['LIMIT'];
-            $limit['expr_type'] = 'limit';
-            $this->getVariables($limit, $vars);
-        }
-
-        $this->args = array_unique($vars);
     }
 
     public function isInsert()
@@ -84,7 +44,10 @@ class Method
             return true;
         }
 
-        if (!empty($this->query['LIMIT'])) {
+        $limit = $this->query->getLimit();
+
+        if ($limit) {
+            var_dump($limit);exit;
             return $this->query['LIMIT']['rowcount'] == 1;
         }
 
@@ -102,6 +65,11 @@ class Method
             return '';
         }
         return '$' . implode(", $", $this->args);
+    }
+
+    public function changeSchema()
+    {
+        return $this->query instanceof \SQLParser\Table;
     }
 
     public function mapAsObject()
@@ -125,8 +93,7 @@ class Method
 
     public function getSQL()
     {
-        $creator = new PHPSQLCreator;
-        reset($this->query);
-        return $creator->create($this->query);
+        Writer\SQL::setInstance(new Writer\MySQL);
+        return Writer\SQL::create($this->query);
     }
 }

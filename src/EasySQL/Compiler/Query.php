@@ -25,52 +25,36 @@
 namespace EasySQL\Compiler;
 
 use Notoj\Notoj;
-use PHPSQLParser\PHPSQLParser;
+use SQLParser;
 use EasySQL_Compiler_QueryParser as Parser;
+use EasySQL\Engine;
 use RuntimeException;
 
 class Query
 {
     protected $file;
     protected $name;
+    protected $engine;
     protected $queries;
 
-    public function __construct($file)
+    public function __construct($file, $relative, Engine\Base $engine)
     {
         if (!is_readable($file)) {
             throw new RuntimeException("{$file} is not a valid file");
         }
-        $this->file = $file;
-        $this->name = preg_replace("/\..+$/", "", basename($file));
+        $this->file   = $file;
+        $this->engine = $engine;
+        $this->name   = preg_replace("/\..+$/", "", basename($file));
         $this->parse(file_get_contents($file));
     }
 
     protected function parse($content)
     {
-        $parser    = new Parser;
-        $lexer     = new QueryLexer($content);
-        $queries   = array();
-        $sqlparser = new PHPSQLParser;
-        while ($lexer->yylex()) {
-            $value = $lexer->value;
-            if (in_array($lexer->token, [Parser::RAW_SQL, Parser::COMMENT]) && empty($value)) {
-                continue;
-            }
-            $parser->doParse($lexer->token, $value);
-        }
-        $parser->doParse(0, 0);
-        foreach ($parser->body as $parts) {
-            $query   = "";
-            $comment = "";
-            foreach ($parts as $part) {
-                if ($part[0] == 'comment') {
-                    $comment .= trim(trim($part[1], '-*/')) . "\n";
-                } else {
-                    $query .= $part[1];
-                }
-            }
+        $sqlparser = new SQLParser;
+        $queries = array();
+        foreach ($sqlparser->parse($content) as $query) {
             if (empty($query)) continue;
-            
+            $comment = implode("\n", $query->getComment());
             $comment = "/**\n$comment\n*/";
 
             $annotations = Notoj::parseDocComment($comment);
@@ -80,7 +64,7 @@ class Query
                 throw new RuntimeException("Query doesn't have a `@name`. $query");
             }
 
-            $queries[$name] = new Repository\Method($annotations, $sqlparser->parse($query));
+            $queries[$name] = new Repository\Method($annotations, $query, $this->engine);
         }
 
         $this->name    = ucfirst($this->name);

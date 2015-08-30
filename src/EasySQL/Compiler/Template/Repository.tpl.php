@@ -19,9 +19,11 @@ class {{$query->getName()}}Repository
     public function {{$name}}({{$method->getFunctionSignature()}})
     {
         $stmt = $this->dbh->prepare({{@$method->getSQL()}});
-        $stmt->execute({{$method->getCompact()}});
+        $result = $stmt->execute({{$method->getCompact()}});
         @if ($method->isInsert())
             return $this->dbh->lastInsertId();
+        @elif ($method->changeSchema()) 
+            return true;
         @elif ($method->singleResult()) 
             @if ($method->mapAsObject())
                 return $stmt->fetchObject({{ @$method->mapAsObject() }});

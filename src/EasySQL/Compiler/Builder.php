@@ -41,7 +41,7 @@ function builder($output, Array $files, Array $args, $builder)
     }
     $files = array();
     foreach ($iterator as $file) {
-        $query = new Query($file, $file->getRelativePathname());
+        $query = new Query($file, $file->getRelativePathname(), $args[0]);
         $files[$query->getName()] = $query;
         $builder->watch($file);
     }
