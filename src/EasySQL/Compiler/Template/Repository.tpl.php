@@ -31,7 +31,7 @@ class {{$query->getName()}}Repository
                 return $stmt->fetch(PDO::FETCH_ASSOC);
             @end
         @else 
-            return new Cursor($stmt, {{ @$method->mapAsObject() }});
+            return $stmt;
         @end
     }
 
