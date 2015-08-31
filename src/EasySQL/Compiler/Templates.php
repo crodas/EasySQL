@@ -151,9 +151,7 @@ namespace {
                         }
                     }
                     else {
-                        echo "            return new Cursor(\$stmt, ";
-                        var_export($method->mapAsObject());
-                        echo ");\n";
+                        echo "            return \$stmt;\n";
                     }
 
 
