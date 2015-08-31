@@ -43,7 +43,7 @@ function builder($output, Array $files, Array $args, $builder)
     foreach ($iterator as $file) {
         $query = new Query($file, $file->getRelativePathname(), $args[0]);
         $files[$query->getName()] = $query;
-        $builder->watch($file);
+        $builder->watch((string)$file);
     }
     $builder->watch(__DIR__ . '/templates.php');
 
