@@ -47,21 +47,12 @@ spl_autoload_register(function ($class) {
     0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Engine/Base.php',
     1 => 'class_exists',
   ),
-  'easysql\\engine\\sqlite' => 
-  array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Engine/SQLite.php',
-    1 => 'class_exists',
-  ),
 );
 
     static $deps    = array (
   'class_a70c700441f2ca1a7f9cce68047ff33925e70d04' => 
   array (
     0 => 'base_template_c4adc06fcaba37f452631fc5422ddc1f451c4bce',
-  ),
-  'easysql\\engine\\sqlite' => 
-  array (
-    0 => 'easysql\\engine\\base',
   ),
 );
 

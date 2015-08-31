@@ -26,28 +26,20 @@ namespace EasySQL\Engine;
 
 use PDO;
 
-abstract class Base
+class Base
 {
-    public function generateTable(Array &$data)
+    public function rollback(PDO $pdo)
     {
-        $parts = array();
-        foreach ($data['no_quotes']['parts'] as $part) {
-            $parts[] = $this->escape($part);
-        }
-        $data['table'] = implode(".", $parts);
+        $pdo->exec("ROLLBACK");
     }
 
-    public function generateColRef(Array &$data)
+    public function commit(PDO $pdo)
     {
-        if (in_array($data['base_expr'][0], ['*', ':'])) return;
-        $parts = array();
-        foreach ($data['no_quotes']['parts'] as $part) {
-            $parts[] = $this->escape($part);
-        }
-        $data['base_expr'] = implode(".", $parts);
+        $pdo->exec("COMMIT");
     }
 
-    abstract protected function escape($name);
-    
-    abstract public function begin(PDO $pdo);
+    public function begin(PDO $pdo)
+    {
+        $pdo->exec("BEGIN");
+    }
 }
