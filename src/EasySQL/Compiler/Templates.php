@@ -134,6 +134,11 @@ namespace {
                     var_export($method->getSQL());
                     echo ");\n        \$result = \$stmt->execute(";
                     echo $method->getCompact() . ");\n";
+                    if ($method->mapAsObject()) {
+                        echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
+                        var_export($method->mapAsObject());
+                        echo ");\n";
+                    }
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
                     }
@@ -141,14 +146,7 @@ namespace {
                         echo "            return true;\n";
                     }
                     else if ($method->singleResult()) {
-                        if ($method->mapAsObject()) {
-                            echo "                return \$stmt->fetchObject(";
-                            var_export($method->mapAsObject());
-                            echo ");\n";
-                        }
-                        else {
-                            echo "                return \$stmt->fetch(PDO::FETCH_ASSOC);\n";
-                        }
+                        echo "            return \$stmt->fetch();\n";
                     }
                     else {
                         echo "            return \$stmt;\n";

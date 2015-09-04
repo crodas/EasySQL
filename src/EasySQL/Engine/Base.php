@@ -28,6 +28,11 @@ use PDO;
 
 class Base
 {
+    public function getName()
+    {
+        return "sql-ansi-92";
+    }
+
     public function rollback(PDO $pdo)
     {
         $pdo->exec("ROLLBACK");

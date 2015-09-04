@@ -28,6 +28,7 @@ use Notoj\Notoj;
 use SQLParser;
 use EasySQL_Compiler_QueryParser as Parser;
 use EasySQL\Engine;
+use SQL\Writer;
 use RuntimeException;
 
 class Query
@@ -46,6 +47,7 @@ class Query
         $this->engine = $engine;
         $this->name   = preg_replace("/\..+$/", "", basename($file));
         $this->parse(file_get_contents($file));
+        Writer::setInstance($engine->getName());
     }
 
     protected function parse($content)
@@ -54,7 +56,7 @@ class Query
         $queries = array();
         foreach ($sqlparser->parse($content) as $query) {
             if (empty($query)) continue;
-            $comment = implode("\n", $query->getComment());
+            $comment = implode("\n", $query->getComments());
             $comment = "/**\n$comment\n*/";
 
             $annotations = Notoj::parseDocComment($comment);

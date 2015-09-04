@@ -1,5 +1,7 @@
 <?php
 
+class User {}
+
 class BasicTest extends PHPUnit_Framework_TestCase
 {
     public function testBuild()
@@ -34,8 +36,12 @@ class BasicTest extends PHPUnit_Framework_TestCase
         $user = $conn->getRepository('user');
         $id = $user->create('foo@gmail.com', 'xxx');
         $this->assertTrue(is_numeric($id));
-        $user = $user->byId($id);
-        $this->assertTrue(is_array($user));
+        $this->assertTrue($user->byId($id) instanceof User);
+
+        $this->assertTrue($user->all() instanceof PDOStatement);
+        foreach ($user->all() as $u) {
+            $this->assertTrue($u instanceof User);
+        }
     }
 
 }

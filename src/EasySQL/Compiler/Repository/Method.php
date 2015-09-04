@@ -3,10 +3,11 @@
 namespace EasySQL\Compiler\Repository;
 
 use Notoj\Annotation\Annotations;
-use PHPSQLParser\PHPSQLCreator;
 use EasySQL\Engine;
-use SQLParser\Stmt;
-use SQLParser\Writer;
+use SQL\Statement;
+use SQL\Writer;
+use SQL\Insert;
+use SQL\Select;
 
 class Method
 {
@@ -15,7 +16,7 @@ class Method
     protected $args;
     protected $engine;
 
-    public function __construct(Annotations $ann, Stmt $query, Engine\Base $engine)
+    public function __construct(Annotations $ann, Statement $query, Engine\Base $engine)
     {
         $this->engine = $engine;
         $this->query  = $query;
@@ -34,7 +35,7 @@ class Method
 
     public function isInsert()
     {
-        return $this->query instanceof \SQLParser\Insert;
+        return $this->query instanceof Insert;
     }
 
     public function singleResult()
@@ -46,8 +47,7 @@ class Method
         $limit = $this->query->getLimit();
 
         if ($limit) {
-            $parts = $limit->getTerms();
-            return count($parts) == 1 && $parts[0]->getMember(0) == 1;
+            return is_int($limit) && $limit == 1;
         }
 
         return false;
@@ -68,12 +68,12 @@ class Method
 
     public function changeSchema()
     {
-        return $this->query instanceof \SQLParser\Table;
+        return $this->query instanceof Table;
     }
 
     public function mapAsObject()
     {
-        $ann = $this->ann->getOne('mapWith,MapClass,ResultClass');
+        $ann = $this->ann->getOne('mapWith,MapClass,ResultClass,mapAs');
         if (!$ann) { 
             return false;
         }
@@ -92,7 +92,6 @@ class Method
 
     public function getSQL()
     {
-        Writer\SQL::setInstance(new Writer\MySQL);
-        return Writer\SQL::create($this->query);
+        return Writer::create($this->query);
     }
 }

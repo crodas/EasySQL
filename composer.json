@@ -24,7 +24,6 @@
     ],
     "minimum-stability": "stable",
     "require-dev": {
-        "crodas/autoloader": "^0.1",
         "crodas/simple-view-engine": "^0.1"
     }
 }

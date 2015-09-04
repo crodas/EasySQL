@@ -20,16 +20,15 @@ class {{$query->getName()}}Repository
     {
         $stmt = $this->dbh->prepare({{@$method->getSQL()}});
         $result = $stmt->execute({{$method->getCompact()}});
+        @if ($method->mapAsObject()) 
+            $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }});
+        @end
         @if ($method->isInsert())
             return $this->dbh->lastInsertId();
         @elif ($method->changeSchema()) 
             return true;
         @elif ($method->singleResult()) 
-            @if ($method->mapAsObject())
-                return $stmt->fetchObject({{ @$method->mapAsObject() }});
-            @else
-                return $stmt->fetch(PDO::FETCH_ASSOC);
-            @end
+            return $stmt->fetch();
         @else 
             return $stmt;
         @end
