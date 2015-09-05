@@ -14,37 +14,37 @@ spl_autoload_register(function ($class) {
     static $classes = array (
   'easysql\\compiler\\query' => 
   array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Compiler/Query.php',
+    0 => '/Compiler/Query.php',
     1 => 'class_exists',
   ),
   'easysql\\compiler\\repository\\method' => 
   array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Compiler/Repository/Method.php',
+    0 => '/Compiler/Repository/Method.php',
     1 => 'class_exists',
   ),
   'base_template_c4adc06fcaba37f452631fc5422ddc1f451c4bce' => 
   array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Compiler/Templates.php',
+    0 => '/Compiler/TemplIates.php',
     1 => 'class_exists',
   ),
   'class_a70c700441f2ca1a7f9cce68047ff33925e70d04' => 
   array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Compiler/Templates.php',
+    0 => '/Compiler/TemplIates.php',
     1 => 'class_exists',
   ),
   'easysql\\compiler\\templates' => 
   array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Compiler/Templates.php',
+    0 => '/Compiler/TemplIates.php',
     1 => 'class_exists',
   ),
   'easysql\\easysql' => 
   array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/EasySQL.php',
+    0 => '/EasySQL.php',
     1 => 'class_exists',
   ),
   'easysql\\engine\\base' => 
   array (
-    0 => '/Users/crodas/Projects/newest/EasySQL/src/EasySQL/Engine/Base.php',
+    0 => '/Engine/Base.php',
     1 => 'class_exists',
   ),
 );
@@ -63,14 +63,14 @@ if (isset($classes[$class])) {
 if (
     ! $classes[$zclass][1]( $zclass, false )
 ) {
-    require $classes[$zclass][0];
+    require __DIR__  . $classes[$zclass][0];
 }
         }
     }
 if (
     ! $classes[$class][1]( $class, false )
 ) {
-    require $classes[$class][0];
+    require __DIR__  . $classes[$class][0];
 }
     return true;
 }
@@ -93,7 +93,6 @@ if (
 
     return false;
 } 
-, true, true
 );
 
 
