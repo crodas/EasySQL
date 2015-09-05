@@ -25,7 +25,7 @@ class Method
         $this->engine = $engine;
         $this->query  = $query;
         $this->ann    = $ann;
-        $this->args   = $query->getVariables();
+        $this->args   = array_unique($query->getVariables());
 
         $args   = $this->args;
         $lines  = array();
@@ -53,7 +53,7 @@ class Method
             }
         });
 
-        $this->iargs = $query->getVariables();
+        $this->iargs = array_unique($query->getVariables());
         $this->lines = $lines;
     }
 
