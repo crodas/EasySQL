@@ -40,6 +40,7 @@ class BasicTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($user->all() instanceof PDOStatement);
         foreach ($user->all() as $u) {
+            $this->assertEquals(40, strlen($u->password));
             $this->assertTrue($u instanceof User);
         }
     }

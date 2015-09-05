@@ -8,6 +8,8 @@ use SQL\Statement;
 use SQL\Writer;
 use SQL\Insert;
 use SQL\Select;
+use SQLParser\Stmt\Expr;
+use SQLParser\Stmt\VariablePlaceholder;
 
 class Method
 {
@@ -15,6 +17,8 @@ class Method
     protected $ann;
     protected $args;
     protected $engine;
+    protected $lines;
+    protected $iargs;
 
     public function __construct(Annotations $ann, Statement $query, Engine\Base $engine)
     {
@@ -22,15 +26,35 @@ class Method
         $this->query  = $query;
         $this->ann    = $ann;
         $this->args   = $query->getVariables();
-    }
 
-    protected function parseVariables($str, &$var)
-    {
-        return preg_match_all("/[\\$:]([a-z_][0-9_a-z]*)/i", $str, $var);
-    }
+        $args   = $this->args;
+        $lines  = array();
+        $ignore = array(
+            'count', 'avg', 'max', 'min',
+            'concat', 'distinct', 'isnull',
+        );
 
-    protected function parseArgs()
-    {
+        $query->iterate(function($expr) use ($ignore, &$lines) {
+            if ($expr instanceof Expr && $expr->is('call')) {
+                $method = strtolower($expr->getMember(0));
+                if (!in_array($method, $ignore) && is_callable($method)) {
+                    $call = array();
+                    foreach ($expr->getMember(1)->getExprs() as $expr) {
+                        if (!$expr instanceof VariablePlaceholder) {
+                            return;
+                        }
+                        $call[] = '$' . $expr->getName();
+                    }
+                    $var  = 't' . uniqid(true);
+                    $lines[] = "\$$var = $method(" . implode(",", $call) . ");";
+
+                    return new VariablePlaceholder($var);
+                }
+            }
+        });
+
+        $this->iargs = $query->getVariables();
+        $this->lines = $lines;
     }
 
     public function isInsert()
@@ -51,6 +75,11 @@ class Method
         }
 
         return false;
+    }
+
+    public function getPHPCode()
+    {
+        return $this->lines;
     }
 
     public function getArguments()
@@ -83,11 +112,10 @@ class Method
 
     public function getCompact()
     {
-        $args = $this->args;
-        if (empty($args)) {
+        if (empty($this->iargs)) {
             return '';
         }
-        return 'compact("' . implode('","', $this->args) . '")';
+        return 'compact("' . implode('","', $this->iargs) . '")';
     }
 
     public function getSQL()

@@ -132,8 +132,13 @@ namespace {
                     $this->context['method'] = $method;
                     echo "    public function " . ($name) . "(" . ($method->getFunctionSignature()) . ")\n    {\n        \$stmt = \$this->dbh->prepare(";
                     var_export($method->getSQL());
-                    echo ");\n        \$result = \$stmt->execute(";
-                    echo $method->getCompact() . ");\n";
+                    echo ");\n";
+                    foreach($method->getPHPCode() as $line) {
+
+                        $this->context['line'] = $line;
+                        echo "            " . ($line) . "\n";
+                    }
+                    echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                     if ($method->mapAsObject()) {
                         echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
                         var_export($method->mapAsObject());

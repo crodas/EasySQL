@@ -19,6 +19,9 @@ class {{$query->getName()}}Repository
     public function {{$name}}({{$method->getFunctionSignature()}})
     {
         $stmt = $this->dbh->prepare({{@$method->getSQL()}});
+        @foreach ($method->getPHPCode() as $line)
+            {{$line}}
+        @end
         $result = $stmt->execute({{$method->getCompact()}});
         @if ($method->mapAsObject()) 
             $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }});
