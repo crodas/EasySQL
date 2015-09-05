@@ -28,9 +28,16 @@ use PDO;
 
 class Base
 {
+    protected $name;
+
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
+
     public function getName()
     {
-        return "sql-ansi-92";
+        return $this->name ? $this->name : "sql-ansi-92";
     }
 
     public function rollback(PDO $pdo)

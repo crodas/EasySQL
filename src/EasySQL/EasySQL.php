@@ -42,11 +42,12 @@ class EasySQL
         if (!is_dir($dir)) {
             throw new RuntimeException("$dir is not a valid directory");
         }
-        $engine = 'EasySQL\Engine\\' . $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $dbType = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $engine = 'EasySQL\Engine\\' . $dbType;
         if (class_exists($engine)) {
             $engine = new $engine;
         } else {
-            $engine = new Engine\Base;
+            $engine = new Engine\Base($dbType);
         }
         $build  = new Build(__DIR__ . '/Compiler/Builder.php');
         $file   = $build->easysql([$dir], [$engine]);
