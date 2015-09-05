@@ -8,6 +8,7 @@ use SQL\Statement;
 use SQL\Writer;
 use SQL\Insert;
 use SQL\Select;
+use SQL\Update;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt\VariablePlaceholder;
 
@@ -55,6 +56,11 @@ class Method
 
         $this->iargs = array_unique($query->getVariables());
         $this->lines = $lines;
+    }
+
+    public function isUpdate()
+    {
+        return $this->query instanceof Update;
     }
 
     public function isInsert()

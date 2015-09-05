@@ -28,7 +28,7 @@ class {{$query->getName()}}Repository
         @end
         @if ($method->isInsert())
             return $this->dbh->lastInsertId();
-        @elif ($method->changeSchema()) 
+        @elif ($method->changeSchema() || $method->isUpdate()) 
             return true;
         @elif ($method->singleResult()) 
             return $stmt->fetch();
