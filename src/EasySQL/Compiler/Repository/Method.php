@@ -98,7 +98,28 @@ class Method
         if (empty($this->args)) {
             return '';
         }
-        return '$' . implode(", $", $this->args);
+        
+        $args     = array();
+        $defaults = $this->ann->get('default');
+        foreach ($this->args as $arg) {
+            $found  = false;
+            foreach ($defaults as $default) {
+                if (in_array($default->getArg(0), ['$' . $arg, ':' . $arg, $arg])) {
+                    $default = $default->getArg(1);
+                    $found = true;
+                    break;
+                }
+            }
+
+            $arg = '$' . $arg;
+            if ($found) {
+                $arg .= '=' . var_export($default, true);
+            }
+
+            $args[] = $arg;
+        }
+
+        return implode(", ", $args);
     }
 
     public function changeSchema()
