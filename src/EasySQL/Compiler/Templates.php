@@ -138,12 +138,12 @@ namespace {
                         $this->context['line'] = $line;
                         echo "            " . ($line) . "\n";
                     }
-                    echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                     if ($method->mapAsObject()) {
                         echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
                         var_export($method->mapAsObject());
                         echo ");\n";
                     }
+                    echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
                     }

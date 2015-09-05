@@ -22,10 +22,10 @@ class {{$query->getName()}}Repository
         @foreach ($method->getPHPCode() as $line)
             {{$line}}
         @end
-        $result = $stmt->execute({{$method->getCompact()}});
         @if ($method->mapAsObject()) 
             $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }});
         @end
+        $result = $stmt->execute({{$method->getCompact()}});
         @if ($method->isInsert())
             return $this->dbh->lastInsertId();
         @elif ($method->changeSchema() || $method->isUpdate()) 
