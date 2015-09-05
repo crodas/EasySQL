@@ -147,7 +147,7 @@ namespace {
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
                     }
-                    else if ($method->changeSchema()) {
+                    else if ($method->changeSchema() || $method->isUpdate()) {
                         echo "            return true;\n";
                     }
                     else if ($method->singleResult()) {
