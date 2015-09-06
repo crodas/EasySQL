@@ -22,10 +22,6 @@ class BasicTest extends PHPUnit_Framework_TestCase
 
         $conn->begin();
         $create->users();
-        $conn->rollback();
-
-        $conn->begin();
-        $create->users();
         $conn->commit();
     }
 
@@ -34,7 +30,7 @@ class BasicTest extends PHPUnit_Framework_TestCase
         global $conn;
 
         $user = $conn->getRepository('user');
-        $id = $user->create('foo@gmail.com', 'xxx');
+        $id = $user->create('foo@gmail.com', 'xxx') ?: 1; 
         $this->assertTrue(is_numeric($id));
         $this->assertTrue($user->byId($id) instanceof User);
 

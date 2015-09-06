@@ -6,6 +6,10 @@ foreach (glob(__DIR__ . '/tmp/*') as $file) {
     @unlink($file);
 }
 
+function get_limit() {
+    return 100;
+}
+
 crodas\FileUtil\File::overrideFilepathGenerator(function($prefix) {
     return __DIR__ . '/tmp/' . $prefix;
 });

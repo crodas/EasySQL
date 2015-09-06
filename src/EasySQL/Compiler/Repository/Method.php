@@ -53,8 +53,20 @@ class Method
                 }
             }
         });
-
-        $this->iargs = array_unique($query->getVariables());
+        
+        if ($query->getVariables('limit')) {
+            $limit = $query->getVariables('limit');
+            foreach ($query->getVariables() as $var) {
+                if (in_array($var, $limit)) {
+                    $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ', PDO::PARAM_INT);';
+                } else {
+                    $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ');';
+                }
+            }
+            $this->iargs = array();
+        } else {
+            $this->iargs = array_unique($query->getVariables());
+        }
         $this->lines = $lines;
     }
 
