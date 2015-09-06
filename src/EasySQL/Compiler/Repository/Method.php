@@ -35,7 +35,11 @@ class Method
             'concat', 'distinct', 'isnull',
         );
 
-        $query->iterate(function($expr) use ($ignore, &$lines) {
+        $innerSelect = array();
+        $query->iterate(function($expr) use ($ignore, &$lines, &$innerSelect) {
+            if ($expr instanceof Select) {
+                $innerSelect[] = $expr;
+            }
             if ($expr instanceof Expr && $expr->is('call')) {
                 $method = strtolower($expr->getMember(0));
                 if (!in_array($method, $ignore) && is_callable($method)) {
@@ -53,16 +57,25 @@ class Method
                 }
             }
         });
-        
-        if ($query->getVariables('limit')) {
-            $limit = $query->getVariables('limit');
-            foreach ($query->getVariables() as $var) {
-                if (in_array($var, $limit)) {
-                    $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ', PDO::PARAM_INT);';
-                } else {
-                    $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ');';
+
+        $innerSelect[] = $query;
+        $hasVarsLimit  = false;
+
+        foreach ($innerSelect as $q) {
+            if ($q->getVariables('limit')) {
+                $hasVarsLimit  = true;
+                $limit = $q->getVariables('limit');
+                foreach ($q->getVariables() as $var) {
+                    if (in_array($var, $limit)) {
+                        $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ', PDO::PARAM_INT);';
+                    } else {
+                        $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ');';
+                    }
                 }
             }
+        }
+
+        if ($hasVarsLimit) {
             $this->iargs = array();
         } else {
             $this->iargs = array_unique($query->getVariables());
