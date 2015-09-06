@@ -60,22 +60,23 @@ class Method
 
         $innerSelect[] = $query;
         $hasVarsLimit  = false;
+        $limit = array();
 
         foreach ($innerSelect as $q) {
             if ($q->getVariables('limit')) {
                 $hasVarsLimit  = true;
-                $limit = $q->getVariables('limit');
-                foreach ($q->getVariables() as $var) {
-                    if (in_array($var, $limit)) {
-                        $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ', PDO::PARAM_INT);';
-                    } else {
-                        $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ');';
-                    }
-                }
+                $limit = array_merge($limit, $q->getVariables('limit'));
             }
         }
 
         if ($hasVarsLimit) {
+            foreach ($query->getVariables() as $var) {
+                if (in_array($var, $limit)) {
+                    $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ', PDO::PARAM_INT);';
+                } else {
+                    $lines[] = '$stmt->bindParam(":'. $var .'", $' . $var . ');';
+                }
+            }
             $this->iargs = array();
         } else {
             $this->iargs = array_unique($query->getVariables());
