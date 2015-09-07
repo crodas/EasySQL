@@ -141,7 +141,9 @@ namespace {
                     if ($method->mapAsObject()) {
                         echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
                         var_export($method->mapAsObject());
-                        echo ");\n";
+                        echo ", array(\$this->dbh, ";
+                        var_export($method->getTables());
+                        echo "));\n";
                     }
                     echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                     if ($method->isInsert()) {

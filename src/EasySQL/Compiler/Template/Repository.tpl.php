@@ -23,7 +23,7 @@ class {{$query->getName()}}Repository
             {{$line}}
         @end
         @if ($method->mapAsObject()) 
-            $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }});
+            $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }}, array($this->dbh, {{ @$method->getTables() }}));
         @end
         $result = $stmt->execute({{$method->getCompact()}});
         @if ($method->isInsert())

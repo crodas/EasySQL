@@ -24,17 +24,17 @@ spl_autoload_register(function ($class) {
   ),
   'base_template_c4adc06fcaba37f452631fc5422ddc1f451c4bce' => 
   array (
-    0 => '/Compiler/TemplIates.php',
+    0 => '/Compiler/Templates.php',
     1 => 'class_exists',
   ),
   'class_a70c700441f2ca1a7f9cce68047ff33925e70d04' => 
   array (
-    0 => '/Compiler/TemplIates.php',
+    0 => '/Compiler/Templates.php',
     1 => 'class_exists',
   ),
   'easysql\\compiler\\templates' => 
   array (
-    0 => '/Compiler/TemplIates.php',
+    0 => '/Compiler/Templates.php',
     1 => 'class_exists',
   ),
   'easysql\\easysql' => 
@@ -46,6 +46,11 @@ spl_autoload_register(function ($class) {
   array (
     0 => '/Engine/Base.php',
     1 => 'class_exists',
+  ),
+  'easysql\\updatable' => 
+  array (
+    0 => '/Updatable.php',
+    1 => 'trait_exists',
   ),
 );
 

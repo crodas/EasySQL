@@ -1,6 +1,8 @@
 <?php
 
-class User {}
+class User {
+    use EasySQL\Updatable;
+}
 
 class BasicTest extends PHPUnit_Framework_TestCase
 {
@@ -35,10 +37,22 @@ class BasicTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($user->byId($id) instanceof User);
 
         $this->assertTrue($user->all() instanceof PDOStatement);
-        foreach ($user->all() as $u) {
+        $i = 0;
+        foreach ($user->all('y') as $u) {
             $this->assertEquals(40, strlen($u->password));
             $this->assertTrue($u instanceof User);
+            $this->assertFalse($u->save());
+            $u->email = 'foo@bar.com';
+            $this->assertTrue($u->save());
+            $this->assertFalse($u->save());
+
+            $y = $user->byId($u->user_id);
+            $this->assertEquals($u, $y);
+
+
+            ++$i;
         }
+        $this->assertTrue($i > 0);
     }
 
 }

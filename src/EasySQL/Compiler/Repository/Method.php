@@ -84,6 +84,15 @@ class Method
         $this->lines = $lines;
     }
 
+    public function getTables()
+    {
+        $tables = $this->query->getTables();
+        if (count($tables) > 1 || $this->query->hasJoins()) {
+            return false;
+        }
+        return current($tables);
+    }
+
     public function isUpdate()
     {
         return $this->query instanceof Update;

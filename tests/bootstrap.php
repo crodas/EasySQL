@@ -6,7 +6,8 @@ foreach (glob(__DIR__ . '/tmp/*') as $file) {
     @unlink($file);
 }
 
-function get_limit() {
+function get_limit()
+{
     return 100;
 }
 
