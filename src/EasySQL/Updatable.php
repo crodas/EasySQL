@@ -63,7 +63,7 @@ trait Updatable
         }
 
         $sql = $this->_pdo->prepare("UPDATE {$this->_table} 
-                SET " . implode("=?", array_keys($changes)) . "=? 
+                SET " . implode("=?,", array_keys($changes)) . "=? 
                 WHERE " . implode("=? AND ", array_keys($this->_values)) . "=?");
 
         $sql->execute(array_merge(array_values($changes), array_values($this->_values)));
