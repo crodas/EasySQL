@@ -62,11 +62,18 @@ trait Updatable
             return false;
         }
 
+        if (!empty($this->_values['table_pk'])) {
+            $pk    = $this->_values['table_pk'];
+            $where = array($pk => $this->_values[$pk]);
+        } else {
+            $where = $this->_values;
+        }
+
         $sql = $this->_pdo->prepare("UPDATE {$this->_table} 
                 SET " . implode("=?,", array_keys($changes)) . "=? 
-                WHERE " . implode("=? AND ", array_keys($this->_values)) . "=?");
+                WHERE " . implode("=? AND ", array_keys($where)) . "=?");
 
-        $sql->execute(array_merge(array_values($changes), array_values($this->_values)));
+        $sql->execute(array_merge(array_values($changes), array_values($where)));
 
         foreach ($changes as $key => $value) {
             $this->_values[$key] = $value;
