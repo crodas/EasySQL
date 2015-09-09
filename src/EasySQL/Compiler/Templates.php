@@ -145,6 +145,9 @@ namespace {
                         var_export($method->getTables());
                         echo "));\n";
                     }
+                    else {
+                        echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, 'ArrayObject');\n";
+                    }
                     echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
