@@ -21,6 +21,16 @@ class Method
     protected $lines;
     protected $iargs;
 
+    public function isPluck()
+    {
+        return $this->ann->has('pluck') && $this->query instanceof Select;
+    }
+
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
     public function __construct(Annotations $ann, Statement $query, Engine\Base $engine)
     {
         $this->engine = $engine;

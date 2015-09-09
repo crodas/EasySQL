@@ -22,7 +22,7 @@ class {{$query->getName()}}Repository
         @foreach ($method->getPHPCode() as $line)
             {{$line}}
         @end
-        @if ($method->mapAsObject()) 
+        @if (!$method->isPluck() && $method->mapAsObject()) 
             $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }}, array($this->dbh, {{ @$method->getTables() }}));
         @end
         $result = $stmt->execute({{$method->getCompact()}});
@@ -30,6 +30,17 @@ class {{$query->getName()}}Repository
             return $this->dbh->lastInsertId();
         @elif ($method->changeSchema() || $method->isUpdate()) 
             return true;
+        @elif ($method->isPluck())
+            $rows = array();
+            $stmt->setFetchMode(PDO::FETCH_NUM);
+            foreach ($stmt as $row) {
+                @if (count($method->getQuery()->getColumns()) == 1)
+                    $rows[] = $row[0];
+                @else
+                    $rows[] = $row;
+                @end
+            }
+            return $rows;
         @elif ($method->singleResult()) 
             return $stmt->fetch();
         @else 

@@ -138,7 +138,7 @@ namespace {
                         $this->context['line'] = $line;
                         echo "            " . ($line) . "\n";
                     }
-                    if ($method->mapAsObject()) {
+                    if (!$method->isPluck() && $method->mapAsObject()) {
                         echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
                         var_export($method->mapAsObject());
                         echo ", array(\$this->dbh, ";
@@ -152,12 +152,23 @@ namespace {
                     else if ($method->changeSchema() || $method->isUpdate()) {
                         echo "            return true;\n";
                     }
+                    else if ($method->isPluck()) {
+                        echo "            \$rows = array();\n            \$stmt->setFetchMode(PDO::FETCH_NUM);\n            foreach (\$stmt as \$row) {\n";
+                        if (count($method->getQuery()->getColumns()) == 1) {
+                            echo "                    \$rows[] = \$row[0];\n";
+                        }
+                        else {
+                            echo "                    \$rows[] = \$row;\n";
+                        }
+                        echo "            }\n            return \$rows;\n";
+                    }
                     else if ($method->singleResult()) {
                         echo "            return \$stmt->fetch();\n";
                     }
                     else {
                         echo "            return \$stmt;\n";
                     }
+
 
 
                     echo "    }\n\n";

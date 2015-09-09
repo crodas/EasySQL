@@ -55,4 +55,11 @@ class BasicTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($i > 0);
     }
 
+    public function testPluck()
+    {
+        global $conn;
+        $this->assertEquals(array(1), $conn->getRepository('user')->pluck1());
+        $this->assertEquals(array([1, 'foo@bar.com']), $conn->getRepository('user')->pluck2());
+    }
+
 }
