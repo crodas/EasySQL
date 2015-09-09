@@ -2,6 +2,9 @@
 -- @mapAs User
 SELECT *, 'user_id' as table_pk FROM `users` WHERE user_id = $id LIMIT 1;
 
+-- @name asArray
+SELECT *, 'user_id' as table_pk FROM `users`;
+
 -- @name all
 -- @mapAs User
 -- @default("foo", NULL)

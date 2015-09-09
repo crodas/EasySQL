@@ -54,6 +54,14 @@ class BasicTest extends PHPUnit_Framework_TestCase
         }
         $this->assertTrue($i > 0);
     }
+    
+    public function testDefaultResponseType()
+    {
+        global $conn;
+        foreach ($conn->getRepository('user')->asArray() as $row) {
+            $this->assertEquals($row->user_id, $row['user_id']);
+        }
+    }
 
     public function testPluck()
     {

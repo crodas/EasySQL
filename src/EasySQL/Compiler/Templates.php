@@ -145,9 +145,12 @@ namespace {
                         var_export($method->getTables());
                         echo "));\n";
                     }
-                    else {
-                        echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, 'ArrayObject');\n";
+                    else if ($method->isSelect()) {
+                        echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, 'EasySQL\\Result', array(\$this->dbh, ";
+                        var_export($method->getTables());
+                        echo "));\n";
                     }
+
                     echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";

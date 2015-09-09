@@ -103,6 +103,11 @@ class Method
         return current($tables);
     }
 
+    public function isSelect()
+    {
+        return $this->query instanceof Select;
+    }
+
     public function isUpdate()
     {
         return $this->query instanceof Update;
