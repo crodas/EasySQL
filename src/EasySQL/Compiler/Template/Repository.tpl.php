@@ -32,7 +32,7 @@ class {{$query->getName()}}Repository
         @end
         @if ($method->isInsert())
             return $this->dbh->lastInsertId();
-        @elif ($method->isVoid() || $method->changeSchema() || $method->isUpdate()) 
+        @elif ($method->isVoid() || $method->changeSchema() || $method->isUpdate() || $method->isDelete()) 
             return true;
         @elif ($method->isPluck())
             $rows = array();

@@ -7,6 +7,7 @@ use EasySQL\Engine;
 use SQL\Statement;
 use SQL\Writer;
 use SQL\Insert;
+use SQL\Delete;
 use SQL\Select;
 use SQL\Update;
 use SQLParser\Stmt\Expr;
@@ -116,6 +117,11 @@ class Method
     public function isUpdate()
     {
         return $this->query instanceof Update;
+    }
+
+    public function isDelete()
+    {
+        return $this->query instanceof Delete;
     }
 
     public function isInsert()

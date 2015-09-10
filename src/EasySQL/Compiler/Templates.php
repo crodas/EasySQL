@@ -159,7 +159,7 @@ namespace {
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
                     }
-                    else if ($method->isVoid() || $method->changeSchema() || $method->isUpdate()) {
+                    else if ($method->isVoid() || $method->changeSchema() || $method->isUpdate() || $method->isDelete()) {
                         echo "            return true;\n";
                     }
                     else if ($method->isPluck()) {
