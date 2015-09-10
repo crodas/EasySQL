@@ -140,7 +140,7 @@ namespace {
                     }
                     echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                     if ($method->isVoid()) {
-                        echo "            die(\"void\");\n";
+                        echo "            // void \n";
                     }
                     else if (!$method->isPluck() && $method->mapAsObject()) {
                         echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
