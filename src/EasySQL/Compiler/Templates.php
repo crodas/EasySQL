@@ -138,7 +138,11 @@ namespace {
                         $this->context['line'] = $line;
                         echo "            " . ($line) . "\n";
                     }
-                    if (!$method->isPluck() && $method->mapAsObject()) {
+                    echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
+                    if ($method->isVoid()) {
+                        echo "            die(\"void\");\n";
+                    }
+                    else if (!$method->isPluck() && $method->mapAsObject()) {
                         echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
                         var_export($method->mapAsObject());
                         echo ", array(\$this->dbh, ";
@@ -151,11 +155,11 @@ namespace {
                         echo "));\n";
                     }
 
-                    echo "        \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
+
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
                     }
-                    else if ($method->changeSchema() || $method->isUpdate()) {
+                    else if ($method->isVoid() || $method->changeSchema() || $method->isUpdate()) {
                         echo "            return true;\n";
                     }
                     else if ($method->isPluck()) {

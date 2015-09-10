@@ -103,6 +103,11 @@ class Method
         return current($tables);
     }
 
+    public function isVoid()
+    {
+        return $this->ann->has('void,noreturn');
+    }
+
     public function isSelect()
     {
         return $this->query instanceof Select;

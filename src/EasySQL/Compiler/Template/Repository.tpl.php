@@ -22,15 +22,17 @@ class {{$query->getName()}}Repository
         @foreach ($method->getPHPCode() as $line)
             {{$line}}
         @end
-        @if (!$method->isPluck() && $method->mapAsObject()) 
+        $result = $stmt->execute({{$method->getCompact()}});
+        @if ($method->isVoid())
+            // void 
+        @elif (!$method->isPluck() && $method->mapAsObject()) 
             $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }}, array($this->dbh, {{ @$method->getTables() }}));
         @elif ($method->isSelect())
             $stmt->setFetchMode(PDO::FETCH_CLASS, 'EasySQL\Result', array($this->dbh, {{ @$method->getTables() }}));
         @end
-        $result = $stmt->execute({{$method->getCompact()}});
         @if ($method->isInsert())
             return $this->dbh->lastInsertId();
-        @elif ($method->changeSchema() || $method->isUpdate()) 
+        @elif ($method->isVoid() || $method->changeSchema() || $method->isUpdate()) 
             return true;
         @elif ($method->isPluck())
             $rows = array();
