@@ -5,6 +5,16 @@ SELECT *, 'user_id' as table_pk FROM `users` WHERE user_id = $id LIMIT 1;
 -- @name asArray
 SELECT *, 'user_id' as table_pk FROM `users`;
 
+-- @name testArray1
+-- @isArray($args)
+-- @isArray($xxx)
+SELECT * FROM users WHERE user_id IN ($args) or user_id IN ($xxx) or user_id = $id;
+
+-- @name testArray2
+-- @isArray($args)
+-- @isArray($xxx)
+SELECT * FROM users WHERE user_id IN ($args) or user_id IN ($xxx);
+
 -- @name all
 -- @mapAs User
 -- @default("foo", NULL)

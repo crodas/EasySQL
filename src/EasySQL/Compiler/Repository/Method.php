@@ -12,6 +12,7 @@ use SQL\Select;
 use SQL\Update;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt\VariablePlaceholder;
+use RuntimeException;
 
 class Method
 {
@@ -26,6 +27,20 @@ class Method
     {
         return $this->ann->has('singlecolumn,get_var,scalar')
             && $this->query instanceof Select;
+    }
+
+    public function getArrayVariables()
+    {
+        $vars = array();
+        foreach ($this->ann->get('array,is_array,isarray') as $var) {
+            $vars[] = trim($var->getArg(0), ':$ \r\t\n');
+        }
+        return array_unique($vars);
+    }
+
+    public function hasArrayVariable()
+    {
+        return $this->ann->has('array,is_array,isarray');
     }
 
     public function isPluck()
@@ -95,6 +110,9 @@ class Method
                 }
             }
             $this->iargs = array();
+            if ($this->hasArrayVariable()) {
+                throw new RuntimeException("Cannot use array variables with variables in LIMIT");
+            }
         } else {
             $this->iargs = array_unique($query->getVariables());
         }
@@ -209,7 +227,17 @@ class Method
         if (empty($this->iargs)) {
             return '';
         }
-        return 'compact("' . implode('","', $this->iargs) . '")';
+        $args = $this->iargs;
+        $exclude = $this->getArrayVariables();
+        foreach ($args as $id => $var) {
+            if (in_array($var, $exclude)) {
+                unset($args[$id]);
+            }
+        }
+        if (empty($args)) {
+            return 'array()';
+        } 
+        return 'compact("' . implode('","', $args) . '")';
     }
 
     public function getSQL()

@@ -70,4 +70,13 @@ class BasicTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array([1, 'foo@bar.com']), $conn->getRepository('user')->pluck2());
     }
 
+    public function testArray()
+    {
+        global $conn;
+        $user = $conn->getRepository('user');
+        $row1 = $user->testArray2([1,2,3],[2,3])->fetch();
+        $row2 = $user->testArray1([1,2,3],[2,3], 99)->fetch();
+        $this->assertEquals($row1, $row2);
+    }
+
 }

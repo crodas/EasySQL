@@ -18,11 +18,31 @@ class {{$query->getName()}}Repository
     @foreach ($query->getMethods() as $name => $method)
     public function {{$name}}({{$method->getFunctionSignature()}})
     {
-        $stmt = $this->dbh->prepare({{@$method->getSQL()}});
-        @foreach ($method->getPHPCode() as $line)
-            {{$line}}
+        @if ($method->hasArrayVariable())
+            $sql = {{@$method->getSQL()}};
+            @foreach ($method->getPHPCode() as $line)
+                {{$line}}
+            @end
+            $replace   = array();
+            $variables = {{$method->getCompact()}};
+            @foreach ($method->getArrayVariables() as $var)
+                if (!is_array(${{$var}})) {
+                    throw new \RuntimeException({{@$var . " must e an array"}});
+                }
+                foreach (${{$var}} as $key => $value) {
+                    $variables[{{@$var.'_'}} . $key] = $value;
+                }
+                $replace[{{@':' . $var}}] = {{@":{$var}_"}} . implode({{@", :{$var}_"}}, array_keys(${{$var}}));
+            @end
+            $stmt = $this->dbh->prepare(str_replace(array_keys($replace), array_values($replace), $sql));
+            $result = $stmt->execute($variables);
+        @else
+            $stmt = $this->dbh->prepare({{@$method->getSQL()}});
+            @foreach ($method->getPHPCode() as $line)
+                {{$line}}
+            @end
+            $result = $stmt->execute({{$method->getCompact()}});
         @end
-        $result = $stmt->execute({{$method->getCompact()}});
         @if ($method->isVoid())
             // void 
         @elif (!$method->isPluck() && $method->mapAsObject()) 
