@@ -22,6 +22,12 @@ class Method
     protected $lines;
     protected $iargs;
 
+    public function isScalar()
+    {
+        return $this->ann->ann('singlecolumn,get_var,scalar')
+            && $this->query instanceof Select;
+    }
+
     public function isPluck()
     {
         return $this->ann->has('pluck') && $this->query instanceof Select;

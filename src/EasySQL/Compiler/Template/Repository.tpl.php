@@ -32,6 +32,10 @@ class {{$query->getName()}}Repository
         @end
         @if ($method->isInsert())
             return $this->dbh->lastInsertId();
+        @elif ($method->isScalar())
+            $stmt->setFetchMode(PDO::FETCH_NUM);
+            $result = $stmt->fetch();
+            return $result[0];
         @elif ($method->isVoid() || $method->changeSchema() || $method->isUpdate() || $method->isDelete()) 
             return true;
         @elif ($method->isPluck())
