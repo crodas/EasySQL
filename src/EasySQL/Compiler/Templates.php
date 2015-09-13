@@ -159,6 +159,9 @@ namespace {
                     if ($method->isInsert()) {
                         echo "            return \$this->dbh->lastInsertId();\n";
                     }
+                    else if ($method->isScalar()) {
+                        echo "            \$stmt->setFetchMode(PDO::FETCH_NUM);\n            \$result = \$stmt->fetch();\n            return \$result[0];\n";
+                    }
                     else if ($method->isVoid() || $method->changeSchema() || $method->isUpdate() || $method->isDelete()) {
                         echo "            return true;\n";
                     }
@@ -178,6 +181,7 @@ namespace {
                     else {
                         echo "            return \$stmt;\n";
                     }
+
 
 
 
