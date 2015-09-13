@@ -24,7 +24,7 @@ class Method
 
     public function isScalar()
     {
-        return $this->ann->ann('singlecolumn,get_var,scalar')
+        return $this->ann->has('singlecolumn,get_var,scalar')
             && $this->query instanceof Select;
     }
 
