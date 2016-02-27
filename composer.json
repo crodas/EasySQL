@@ -8,7 +8,7 @@
         "crodas/watch-files": "^0.1.6",
         "symfony/finder": "^2.7",
         "crodas/build": "^0.1",
-        "crodas/sql-parser": "dev-develop"
+        "crodas/sql-parser": "^0.1"
     },
     "autoload": {
         "psr-0": {
