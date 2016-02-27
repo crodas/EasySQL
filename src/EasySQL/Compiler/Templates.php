@@ -131,96 +131,108 @@ namespace {
                     $this->context['name'] = $name;
                     $this->context['method'] = $method;
                     echo "    public function " . ($name) . "(" . ($method->getFunctionSignature()) . ")\n    {\n";
-                    if ($method->hasArrayVariable()) {
-                        echo "            \$sql = ";
-                        var_export($method->getSQL());
-                        echo ";\n";
-                        foreach($method->getPHPCode() as $line) {
+                    if ($method instanceof EasySQL\Compiler\Repository\Transaction) {
+                        echo "            \$return = [];\n";
+                        foreach($method->getMembersCalling() as $member) {
 
-                            $this->context['line'] = $line;
-                            echo "                " . ($line) . "\n";
+                            $this->context['member'] = $member;
+                            echo "            \$return[] = \$this->" . ($member) . "\n";
                         }
-                        echo "            \$replace   = array();\n            \$variables = ";
-                        echo $method->getCompact() . ";\n";
-                        foreach($method->getArrayVariables() as $var) {
-
-                            $this->context['var'] = $var;
-                            echo "                if (!is_array(\$" . ($var) . ")) {\n                    throw new \\RuntimeException(";
-                            var_export($var . " must e an array");
-                            echo ");\n                }\n                foreach (\$";
-                            echo $var . " as \$key => \$value) {\n                    \$variables[";
-                            var_export($var.'_');
-                            echo " . \$key] = \$value;\n                }\n                \$replace[";
-                            var_export(':' . $var);
-                            echo "] = ";
-                            var_export(":{$var}_");
-                            echo " . implode(";
-                            var_export(", :{$var}_");
-                            echo ", array_keys(\$" . ($var) . "));\n";
-                        }
-                        echo "            \$stmt = \$this->dbh->prepare(str_replace(array_keys(\$replace), array_values(\$replace), \$sql));\n            \$result = \$stmt->execute(\$variables);\n";
+                        echo "            return \$return;\n";
                     }
                     else {
-                        echo "            \$stmt = \$this->dbh->prepare(";
-                        var_export($method->getSQL());
-                        echo ");\n";
-                        foreach($method->getPHPCode() as $line) {
+                        if ($method->hasArrayVariable()) {
+                            echo "            \$sql = ";
+                            var_export($method->getSQL());
+                            echo ";\n";
+                            foreach($method->getPHPCode() as $line) {
 
-                            $this->context['line'] = $line;
-                            echo "                " . ($line) . "\n";
-                        }
-                        echo "            \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
-                    }
-                    if ($method->isVoid()) {
-                        echo "            // void \n";
-                    }
-                    else if (!$method->isPluck() && $method->mapAsObject()) {
-                        echo "            \$class = new ReflectionClass(";
-                        var_export($method->mapAsObject());
-                        echo ");\n            if (\$class->getConstructor()) {\n                \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
-                        var_export($method->mapAsObject());
-                        echo ", array(\$this->dbh, ";
-                        var_export($method->getTables());
-                        echo "));\n            } else {\n                \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
-                        var_export($method->mapAsObject());
-                        echo ");\n            }\n";
-                    }
-                    else if ($method->isSelect()) {
-                        echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, 'EasySQL\\Result', array(\$this->dbh, ";
-                        var_export($method->getTables());
-                        echo "));\n";
-                    }
+                                $this->context['line'] = $line;
+                                echo "                " . ($line) . "\n";
+                            }
+                            echo "            \$replace   = array();\n            \$variables = ";
+                            echo $method->getCompact() . ";\n";
+                            foreach($method->getArrayVariables() as $var) {
 
-
-                    if ($method->isInsert()) {
-                        echo "            return \$this->dbh->lastInsertId();\n";
-                    }
-                    else if ($method->isScalar()) {
-                        echo "            \$stmt->setFetchMode(PDO::FETCH_NUM);\n            \$result = \$stmt->fetch();\n            return \$result[0];\n";
-                    }
-                    else if ($method->isVoid() || $method->changeSchema() || $method->isUpdate() || $method->isDelete()) {
-                        echo "            return true;\n";
-                    }
-                    else if ($method->isPluck()) {
-                        echo "            \$rows = array();\n            \$stmt->setFetchMode(PDO::FETCH_NUM);\n            foreach (\$stmt as \$row) {\n";
-                        if (count($method->getQuery()->getColumns()) == 1) {
-                            echo "                    \$rows[] = \$row[0];\n";
+                                $this->context['var'] = $var;
+                                echo "                if (!is_array(\$" . ($var) . ")) {\n                    throw new \\RuntimeException(";
+                                var_export($var . " must e an array");
+                                echo ");\n                }\n                foreach (\$";
+                                echo $var . " as \$key => \$value) {\n                    \$variables[";
+                                var_export($var.'_');
+                                echo " . \$key] = \$value;\n                }\n                \$replace[";
+                                var_export(':' . $var);
+                                echo "] = ";
+                                var_export(":{$var}_");
+                                echo " . implode(";
+                                var_export(", :{$var}_");
+                                echo ", array_keys(\$" . ($var) . "));\n";
+                            }
+                            echo "            \$stmt = \$this->dbh->prepare(str_replace(array_keys(\$replace), array_values(\$replace), \$sql));\n            \$result = \$stmt->execute(\$variables);\n";
                         }
                         else {
-                            echo "                    \$rows[] = \$row;\n";
+                            echo "            \$stmt = \$this->dbh->prepare(";
+                            var_export($method->getSQL());
+                            echo ");\n";
+                            foreach($method->getPHPCode() as $line) {
+
+                                $this->context['line'] = $line;
+                                echo "                " . ($line) . "\n";
+                            }
+                            echo "            \$result = \$stmt->execute(" . ($method->getCompact()) . ");\n";
                         }
-                        echo "            }\n            return \$rows;\n";
+                        if ($method->isVoid()) {
+                            echo "            // void \n";
+                        }
+                        else if (!$method->isPluck() && $method->mapAsObject()) {
+                            echo "            \$class = new ReflectionClass(";
+                            var_export($method->mapAsObject());
+                            echo ");\n            if (\$class->getConstructor()) {\n                \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
+                            var_export($method->mapAsObject());
+                            echo ", array(\$this->dbh, ";
+                            var_export($method->getTables());
+                            echo "));\n            } else {\n                \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
+                            var_export($method->mapAsObject());
+                            echo ");\n            }\n";
+                        }
+                        else if ($method->isSelect()) {
+                            echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, 'EasySQL\\Result', array(\$this->dbh, ";
+                            var_export($method->getTables());
+                            echo "));\n";
+                        }
+
+
+                        if ($method->isInsert()) {
+                            echo "            return \$this->dbh->lastInsertId();\n";
+                        }
+                        else if ($method->isScalar()) {
+                            echo "            \$stmt->setFetchMode(PDO::FETCH_NUM);\n            \$result = \$stmt->fetch();\n            return \$result[0];\n";
+                        }
+                        else if ($method->isVoid() || $method->changeSchema() || $method->isUpdate() || $method->isDelete()) {
+                            echo "            return true;\n";
+                        }
+                        else if ($method->isPluck()) {
+                            echo "            \$rows = array();\n            \$stmt->setFetchMode(PDO::FETCH_NUM);\n            foreach (\$stmt as \$row) {\n";
+                            if (count($method->getQuery()->getColumns()) == 1) {
+                                echo "                    \$rows[] = \$row[0];\n";
+                            }
+                            else {
+                                echo "                    \$rows[] = \$row;\n";
+                            }
+                            echo "            }\n            return \$rows;\n";
+                        }
+                        else if ($method->singleResult()) {
+                            echo "            return \$stmt->fetch();\n";
+                        }
+                        else {
+                            echo "            return \$stmt;\n";
+                        }
+
+
+
+
+                        echo "\n";
                     }
-                    else if ($method->singleResult()) {
-                        echo "            return \$stmt->fetch();\n";
-                    }
-                    else {
-                        echo "            return \$stmt;\n";
-                    }
-
-
-
-
                     echo "    }\n\n";
                 }
                 echo "}\n";

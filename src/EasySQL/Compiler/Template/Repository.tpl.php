@@ -19,6 +19,13 @@ class {{$query->getName()}}Repository
     @foreach ($query->getMethods() as $name => $method)
     public function {{$name}}({{$method->getFunctionSignature()}})
     {
+        @if ($method instanceof EasySQL\Compiler\Repository\Transaction) 
+            $return = [];
+            @foreach ($method->getMembersCalling() as $member)
+            $return[] = $this->{{ $member }}
+            @end
+            return $return;
+        @else
         @if ($method->hasArrayVariable())
             $sql = {{@$method->getSQL()}};
             @foreach ($method->getPHPCode() as $line)
@@ -79,6 +86,8 @@ class {{$query->getName()}}Repository
             return $stmt->fetch();
         @else 
             return $stmt;
+        @end
+
         @end
     }
 

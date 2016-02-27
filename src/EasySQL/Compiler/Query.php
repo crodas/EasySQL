@@ -29,6 +29,8 @@ use SQLParser;
 use EasySQL_Compiler_QueryParser as Parser;
 use EasySQL\Engine;
 use SQL\Writer;
+use SQL\BeginTransaction;
+use SQL\CommitTransaction;
 use RuntimeException;
 
 class Query
@@ -53,20 +55,46 @@ class Query
     protected function parse($content)
     {
         $sqlparser = new SQLParser;
+        $parsed  = $sqlparser->parse($content);
         $queries = array();
-        foreach ($sqlparser->parse($content) as $query) {
+        while (count($parsed) > 0) {
+            $query = array_shift($parsed);
             if (empty($query)) continue;
             $comment = implode("\n", $query->getComments());
             $comment = "/**\n$comment\n*/";
 
             $annotations = Notoj::parseDocComment($comment);
             $name = $annotations->getOne('name');
-            $name = $name ? current($name->getArgs()) : false;
+            $name = $name->getArg(0);
             if (!$name) {
                 throw new RuntimeException("Query doesn't have a `@name`. $query");
             }
 
-            $queries[$name] = new Repository\Method($annotations, $query, $this->engine);
+            if ($query instanceof BeginTransaction) {
+                $transaction = new Repository\Transaction($annotations, $this->engine);
+                $transaction->add(new Repository\Method($annotations, $query, $this->engine));
+
+                while (count($parsed) > 0) {
+                    $query = array_shift($parsed);
+                    if (empty($query)) {
+                        continue;
+                    }
+                    $transaction->add(new Repository\Method($annotations, $query, $this->engine));
+                    if ($query instanceof CommitTransaction) {
+                        break;
+                    }
+                }
+                if (!($query instanceof CommitTransaction)) {
+                    throw new RuntimeException("Expecting a COMMIT statement");
+                }
+                $queries[$name] = $transaction;
+                foreach ($transaction->getMembers() as $name => $method) {
+                    $queries[$name] = $method;
+                }
+            } else {
+                $queries[$name] = new Repository\Method($annotations, $query, $this->engine);
+            }
+
         }
 
         $this->name    = ucfirst($this->name);

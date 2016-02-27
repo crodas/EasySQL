@@ -1,5 +1,8 @@
 -- @name createTable
-CREATE TABLE users (id integer not null primary key auto_increment, email varchar(250) not null);
+BEGIN;
+CREATE TABLE usertbl (id integer not null primary key auto_increment, email varchar(250) not null);
+SELECT * FROM usertbl where foo=$foo;
+COMMIT;
 
 -- @name Foobar
 -- @mapWith UserObject
@@ -8,12 +11,12 @@ CREATE TABLE users (id integer not null primary key auto_increment, email varcha
 SELECT 
     * 
 FROM 
-    users -- we can store it
+    $usertbl -- we can store it
 WHERE id = $id LIMIT 1;
 
 -- @name YetAnotherQuery
 -- @default limit 1
-SELECT password FROM users WHERE email = $email LIMIT $limitx;
+SELECT password FROM $usertbl WHERE email = $email LIMIT $limitx;
 
 -- @name InsertData
-INSERT INTO users(email) VALUES($email);
+INSERT INTO $usertbl(email) VALUES($email);
