@@ -26,6 +26,7 @@ namespace EasySQL;
 
 use crodas\Build;
 use RuntimeException;
+use InvalidArgumentException;
 use PDO;
 
 require __DIR__ . "/autoload.php";
@@ -37,11 +38,41 @@ class EasySQL
     protected $repos;
     protected $engine;
 
-    public function __construct($dir, PDO $pdo)
+    protected function urlToPDO($url)
+    {
+        $url    = preg_replace('#^(sqlite3?):///#', '$1://localhost/', $url);
+        $params = parse_url($url);
+        if ($params === false) {
+            throw new InvalidArgumentException("{$url} is not a valid PDO URL");
+        }
+        $params['path'] = substr($params['path'], 1);
+        if (strpos($params['scheme'], 'sqlite') === 0) {
+            return new PDO("sqlite:" . $params['path']);
+        }
+        foreach (['user', 'pass'] as $var) {
+            if (empty($params[$var])) {
+                $params[$var] = '';
+            }
+        }
+        return new PDO("{$params['scheme']}:host={$params['host']};dbname={$params['path']}", $params['user'], $params['pass']);
+    }
+
+    public function __construct($dir, $pdo)
     {
         if (!is_dir($dir)) {
             throw new RuntimeException("$dir is not a valid directory");
         }
+
+        if (!is_string($pdo) && !($pdo instanceof PDO)) {
+            throw new InvalidArgumentException("\$pdo must be a PDO instance of a connection string");
+        }
+
+        if (is_string($pdo)) {
+            $pdo = $this->urlToPdo($pdo);
+        }
+
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         $dbType = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
         $engine = 'EasySQL\Engine\\' . $dbType;
         if (class_exists($engine)) {

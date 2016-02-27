@@ -121,7 +121,7 @@ namespace {
             }
 
             echo "<?php\n\nnamespace EasyRepository\\t";
-            echo $mt=uniqid(true) . ";\n\nuse PDO;\nuse EasySQL\\Cursor;\n\n";
+            echo $mt=uniqid(true) . ";\n\nuse PDO;\nuse ReflectionClass;\nuse EasySQL\\Cursor;\n\n";
             foreach($files as $query) {
 
                 $this->context['query'] = $query;
@@ -175,11 +175,15 @@ namespace {
                         echo "            // void \n";
                     }
                     else if (!$method->isPluck() && $method->mapAsObject()) {
-                        echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
+                        echo "            \$class = new ReflectionClass(";
+                        var_export($method->mapAsObject());
+                        echo ");\n            if (\$class->getConstructor()) {\n                \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
                         var_export($method->mapAsObject());
                         echo ", array(\$this->dbh, ";
                         var_export($method->getTables());
-                        echo "));\n";
+                        echo "));\n            } else {\n                \$stmt->setFetchMode(PDO::FETCH_CLASS, ";
+                        var_export($method->mapAsObject());
+                        echo ");\n            }\n";
                     }
                     else if ($method->isSelect()) {
                         echo "            \$stmt->setFetchMode(PDO::FETCH_CLASS, 'EasySQL\\Result', array(\$this->dbh, ";

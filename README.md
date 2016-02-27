@@ -31,7 +31,7 @@ INSERT INTO user(email) VALUES($email);
 Then you need the following PHP bootstrap code to get it running:
 
 ```php
-$repo = new EasyQuery("queries");
+$repo = new EasySQL\EasySQL("queries", $pdo);
 $users = $repo->getRepository("users");
 
 // find and return a single row due to the `LIMIT 1`. To force 

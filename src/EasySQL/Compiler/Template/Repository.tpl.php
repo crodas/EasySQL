@@ -3,6 +3,7 @@
 namespace EasyRepository\t{{$mt=uniqid(true)}};
 
 use PDO;
+use ReflectionClass;
 use EasySQL\Cursor;
 
 @foreach ($files as $query)
@@ -46,7 +47,12 @@ class {{$query->getName()}}Repository
         @if ($method->isVoid())
             // void 
         @elif (!$method->isPluck() && $method->mapAsObject()) 
-            $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }}, array($this->dbh, {{ @$method->getTables() }}));
+            $class = new ReflectionClass({{@$method->mapAsObject()}});
+            if ($class->getConstructor()) {
+                $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }}, array($this->dbh, {{ @$method->getTables() }}));
+            } else {
+                $stmt->setFetchMode(PDO::FETCH_CLASS, {{ @$method->mapAsObject() }});
+            }
         @elif ($method->isSelect())
             $stmt->setFetchMode(PDO::FETCH_CLASS, 'EasySQL\Result', array($this->dbh, {{ @$method->getTables() }}));
         @end
