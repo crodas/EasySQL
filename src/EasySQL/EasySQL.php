@@ -37,6 +37,7 @@ class EasySQL
     protected $pdo;
     protected $repos;
     protected $engine;
+    protected static $loader = array();
 
     protected function urlToPDO($url)
     {
@@ -82,7 +83,10 @@ class EasySQL
         }
         $build  = new Build(__DIR__ . '/Compiler/Builder.php', $tmp);
         $file   = $build->easysql([$dir], [$engine]);
-        $loader = require_once $file;
+        if (empty(self::$loader[$file])) {
+            self::$loader[$file] = require_once $file;
+        }
+        $loader       = self::$loader[$file];
         $this->pdo    = $pdo;
         $this->repos  = $loader($pdo);
         $this->dir    = $dir;

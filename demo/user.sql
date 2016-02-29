@@ -1,7 +1,7 @@
 -- @name createTable
 BEGIN;
-CREATE TABLE usertbl (id integer not null primary key auto_increment, email varchar(250) not null);
-SELECT * FROM usertbl where foo=$foo;
+CREATE TABLE table_name("user") (id integer not null primary key auto_increment, email varchar(250) not null);
+SELECT * FROM table_name("user") where foo=$foo;
 COMMIT;
 
 -- @name Foobar
@@ -11,12 +11,12 @@ COMMIT;
 SELECT 
     * 
 FROM 
-    $usertbl -- we can store it
+    table_name("user") -- we can store it
 WHERE id = $id LIMIT 1;
 
 -- @name YetAnotherQuery
 -- @default limit 1
-SELECT password FROM $usertbl WHERE email = $email LIMIT $limitx;
+SELECT password FROM table_name("user") WHERE email = $email LIMIT $limitx;
 
 -- @name InsertData
-INSERT INTO $usertbl(email) VALUES($email);
+INSERT INTO table_name("user")(email) VALUES($email);
