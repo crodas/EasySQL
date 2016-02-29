@@ -82,7 +82,7 @@ class EasySQL
         }
         $build  = new Build(__DIR__ . '/Compiler/Builder.php', $tmp);
         $file   = $build->easysql([$dir], [$engine]);
-        $loader = require $file;
+        $loader = require_once $file;
         $this->pdo    = $pdo;
         $this->repos  = $loader($pdo);
         $this->dir    = $dir;
