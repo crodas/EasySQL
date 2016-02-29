@@ -40,7 +40,7 @@ class EasySQL
 
     protected function urlToPDO($url)
     {
-        $url    = preg_replace('#^(sqlite3?):///#', '$1://localhost/', $url);
+        $url    = preg_replace('#^(sqlite3?):///?#', '$1://localhost/', $url);
         $params = parse_url($url);
         if ($params === false) {
             throw new InvalidArgumentException("{$url} is not a valid PDO URL");
