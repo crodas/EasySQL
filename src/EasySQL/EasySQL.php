@@ -57,7 +57,7 @@ class EasySQL
         return new PDO("{$params['scheme']}:host={$params['host']};dbname={$params['path']}", $params['user'], $params['pass']);
     }
 
-    public function __construct($dir, $pdo)
+    public function __construct($dir, $pdo, $tmp = null)
     {
         if (!is_dir($dir)) {
             throw new RuntimeException("$dir is not a valid directory");
@@ -80,7 +80,7 @@ class EasySQL
         } else {
             $engine = new Engine\Base($dbType);
         }
-        $build  = new Build(__DIR__ . '/Compiler/Builder.php');
+        $build  = new Build(__DIR__ . '/Compiler/Builder.php', $tmp);
         $file   = $build->easysql([$dir], [$engine]);
         $loader = require $file;
         $this->pdo    = $pdo;
